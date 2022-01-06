@@ -1,0 +1,63 @@
+##### Internally, data locations are of 3 types.
+
+1. `storage`: **The actual store on the blockchain**. State variables here persist after any execution. Highest gas cost to manipulate.
+
+## Organisation of `storage` : 
+
+- EVM operates in 32 byte slots.
+- All value types like uint8, bool, address and so on are **tightly packed**.
+- So, `uint128` and `uint128` are packed **side by side in one 32 byte slot**.
+- **Any element not fitting in left over space is moved onto a new slot**
+- So, `uint128` and then `uint256` take up **2 slots** instead of one. Because `uint256` can't fit in first slot, a new second 32 byte slot is used.
+- **Arrays and structs always start in a new slot. Any individual elements can still occupy left over space though after array/struct ends according to above rules** .
+- Note that, **Dynamic arrays and mappings** are **NOT** stored in the middle of normal fixed size state variables. 
+- Now assume that all fixed size elements are stored and now we have **dynamic arrays and mappings left to allocate.**
+
+1. **Dynamic Arrays** :  After allocating fixed types as above, we are now on `p`th 32 byte slot. For **dynamic arrays**, this slot contains **number of elements in this dynamic arrays** i.e length. `p` here is the pointer/memory address value. Actual array data is stored at `keccak256(p)`. That is, while location `p` contains number of elements of dynamic array, **hash of p** **is where the array actually starts**. Now elements in array itself are stored as general above rules. Fit in?pack em. Can't fit? new slot. Check out **byte1[] vs bytes and string below**.
+2. **Mappings : ** After allocation of other stuff, let's say we ended up on `p`th slot. This slot **stays empty**. Let's say we want to access element with `k as key`. The formula is
+
+`keccak256(h(k) . p)` where `.` is concatenation and `h(k)` is a function based on actual type of key.
+
+​				If key is a **value type**, `h(k)` applies a padding to `k` to make it a 32 byte sized value.
+
+​				If key is a **string or byteX**, `h(k)`just computes `keccak256` hash of unpadded data.
+
+Remember that mappings here are different from C and other langs. While other langs store **keys of a mapping** and access values based on that internally, **solidity lacks a concept of key**. Wait wut?
+
+Yeah, what solidity does is that it does not actually store the key, value pair but it stores `keccak256(key), value` pair. Hence at low level **even solidity does not know/have info on our keys**. It just believes that when querying, whatever key we supplied will exist. When it doesn't it **returns zero**.
+
+Hence, **you can't delete a mapping** as solidity does not implicitly store info on keys. We can delete a mapping **when we have info on keys**, but check the *security section*. 
+
+**Note** : Sound any bells? The whole thing EVM is trying to achieve is to avoid **collision** as dynamic types are always expanding/reducing. **That's why dynamic types are hashed at `p`th slot to get a storage far away from fixed types and other dynamic types**. Well, GATE helped here.
+
+
+
+## Organisation of `memory` : 
+
+- Memory is theoretically unlimited. Limited by the miner's RAM but the **EVM does not impose a restriction**. But given the **quadratically increasing gas costs as memory use increases**, not unlimited tho.
+- Solidity reserves **128 bytes for special operations**. 
+
+| Range        | Size     | Purpose                                             |
+| ------------ | -------- | --------------------------------------------------- |
+| 0x00 to 0x3f | 64 Bytes | Scratch space for Hashing                           |
+| 0x40 to 0x5f | 32 Bytes | Free memory pointer (current allocated memory size) |
+| 0x60 to 0x7f | 32 Bytes | Zero slot                                           |
+
+- The Zero slot is used as initial value for dynamic memory arrays. **Recall that dynamic size arrays need the first slot to know the size and also to hash that slot to get actual array store**  *(`p`th slot theory from storage)*.
+- So we should never write to the zero slot. But don't worry, on a high level, the free **memory pointer points to `0x80` intitally** so unless we do something weird in assembly, we're cool.
+- New objects are placed at **memory pointed by free memory pointer**. Allocated memory is **Never Freed**.
+- **Elements in memory arrays always occupy multiples of 32 bytes**. Highly Inefficient. So, while `uint8[4]` occupies **1 Byte in storage**, it occupies **128 Bytes cuz each element occupies 32 bytes regardless of how small it is**. This applies to even **structs too**. So, **in both memory and calldata, packing is absent**.
+
+
+
+### ``bytes, string`` vs ``byte1[]``:
+
+##### When used in ``memory``:
+
+In memory due to absence of packing, ``byte1[]`` has the worst efficiency as each element is placed in it's own slot i.e 1 byte is used in whole 32 byte slot. ``bytes`` or ``string`` on the other hand are not treated as arrays and retain the general tight packing even inside memory.
+
+##### When used in ``storage``:
+
+While ``bytes1[]`` is stored in ``storage`` based on general array packing rules,
+the storage encoding of ``bytes`` depends on the length. If the length of ``bytes`` is **at most 31 bytes**, it is stored adjacent to the array length slot ``p``. If the length is **more than 32 bytes**, ``bytes`` is treated in the same way as an array and it's data is stored at
+``keccak256(p)``  i.e hash of the inital length/array slot.
