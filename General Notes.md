@@ -246,6 +246,24 @@ function assigned()
 
 6. `View` functions mean that they **only read. No state change**. `Pure` functions mean they **neither read nor write from state**. Note that the constraints apply only on state. You can still create memory objects and interact with the user's calldata in a normal way.
 
+### Visibility : 
+
+1. `Public` : Can be called internally(from inside current contract) and also externally(other contracts or EOAs)
+2. `private` : Can only be called from inside of a the contract internally.
+3. `internal` : Only internally from inside a contract or by children inheriting it. Something on the lines of Java's protected.
+4. `external` : Can only be called externally. To call from inside the contract, use `this.f()` 
+
+### About return values : 
+
+1. Calling functions as an EOA/User : 
+   - **Only constant i.e view or pure functions can return values to users**.
+   - **Non constant i.e state changing functions return a TXN HASH and cost gas**
+   - The only way to extract any values from state changing function to user/UI is **Listening to events**.
+2. Calling functions of a contract from another contract : 
+   - Both constant and non constant functions can return values when the caller is a contract. 
+   - Note that **constant functions too cost a little when called from a contract** . 
+   -  ---------NEED TO ADD SOME HERE--------
+
 ### `require`, `revert` and `assert`:
 
 1. There are two kinds of **Errors** that EVM can throw. `Error` and `Panic`. 
@@ -329,5 +347,236 @@ contract Mutex {
 4. In the above code when `f` function is called, first `noReentracy` modifier is executed. While execution, the modifier performs it's logic and then calls it's function using `_;`. The `_;` is just a placeholder for modifier to pass the power to it's function. **Note that additional logic can also be performed after the function executes**.
 5. The modifier above also does some state changes **after function has executed**.
 6. So modifiers seem to be a **wrapper function around actual functions**. Hence also note that **arguments to function are also forwarded to the modifiers**. 
-7. But arguments need to be passed to modifiers in the function signature like `function someFunction(address _user) notSpecificAddress("0x......")`, here the value is hardcoded but it can be a **state variable, argument passed down by the function**.
-8. 
+7. But arguments need to be passed to modifiers in the function signature like `function someFunction(address _user) notSpecificAddress("0x......")`, here the value is hardcoded but it can be a **state variable or an argument passed down by the function**.
+8. Note that the placement of `_;` is key to writing secure code. So for starters, include it at end of custom modifers.
+
+### Events : 
+
+1. Events are inheritable members of contracts. The syntax is 
+
+```solidity
+event Deposit(
+        address indexed _from,
+        bytes32 indexed _id,
+        uint _value
+    );
+```
+
+2. And to emit them, 
+
+`emit Deposit(msg.sender, _id, msg.value);`
+
+1. Any web3 JS library can then subscibe to these events. 
+
+## Purpose of Events?
+
+- Note that **only constant i.e view or pure functions can return values**. 
+- So how do you **update your Dapp UI if write/state changing functions are called?** That's where events step in!
+
+
+
+#### Constructors : 
+
+1. Constructors of a contract **run before deployment of the contract**. The contract deployment cost rises **linearly with size of the code**. But note that **constructor code and internal functions code used only in constructor is not billed in gas **
+
+2. State variables are **initialized to default values** even before running the constructor.
+
+3. A contract needs to implement all it's parent contract's constructor compulsorily. Else it is declared **abstract**. 
+
+4. 2 ways to do that, 
+
+   - Specify in the inheritance list itself. **Better suited when args are constants**
+
+   - ```solidity
+     // SPDX-License-Identifier: GPL-3.0
+     pragma solidity >=0.7.0 <0.9.0;
+     
+     contract Base {
+         uint x;
+         constructor(uint _x) { x = _x; }
+     }
+     
+     // Either directly specify in the inheritance list...
+     contract Derived1 is Base(7) {
+         constructor() {}
+     }
+     ```
+
+   - Specify in the modifiers of constructor. **Used when args are actually args to child constructors**
+
+     ```solidity
+     // SPDX-License-Identifier: GPL-3.0
+     pragma solidity >=0.7.0 <0.9.0;
+     
+     contract Base {
+         uint x;
+         constructor(uint _x) { x = _x; }
+     }
+     
+     
+     contract Derived2 is Base {
+         constructor(uint _y) Base(_y * _y) {}
+     }
+     ```
+
+5. **Inheritance is linearized**. Which means always specify the inheritance directive `contract child is grandParent, Parent` like that. Doing something like `contract child is Parent, grandParent` does not work. Simply put, **List highest parents first in inheritance tree. TOP to BOTTOM becomes **
+
+   **`contract child is Top1, Top2, Top3, oneLevelAboveChild `** .
+
+6. Note **Parent constructors are run not in modifier specified way. They always run in the same linearized manner**. See below
+
+   ```solidity
+   contract Base1 {
+       constructor() {}
+   }
+   
+   contract Base2 {
+       constructor() {}
+   }
+   
+   // Constructors are executed in the following order:
+   //  1 - Base1
+   //  2 - Base2
+   //  3 - Derived1
+   contract Derived1 is Base1, Base2 {
+       constructor() Base1() Base2() {}
+   }
+   
+   // Constructors are executed in the following order:
+   //  1 - Base2
+   //  2 - Base1
+   //  3 - Derived2
+   contract Derived2 is Base2, Base1 {
+       constructor() Base2() Base1() {} // Modifier order does not 																				// matter. Follows linearised 																			//order
+   }
+   
+   // Constructors are still executed in the following order:
+   //  1 - Base2
+   //  2 - Base1
+   //  3 - Derived3
+   contract Derived3 is Base2, Base1 {
+       constructor() Base1() Base2() {} // Same here
+   }
+   ```
+
+7. Becuase `Base1` and `Base2` don't have any inheritance relation, the linearization order is **the order we have given in the `is <>` directive **. Hence constructors also run in that order i.e **linearised order**. Had they been related in a inheritance relation, **we need to make sure out `is <>` directive is linearised** and constructors run in that order.
+
+#### Inheritance : 
+
+1. If a contract inherits from multiple contracts and both those contracts inherit from same base contract (**google diamond pattern**), then **only one copy of top most contract is created**. See below. Similar to **Virtual Inheritance** from C++.
+
+```solidity
+contract Owned {
+	string name = "John"
+}
+
+contract Destructible is Owned {
+	// string name = "Something"; not allowed as it shadows
+	constructor(){
+		name = "Joseph" // This directly points to parent's name
+	}
+}
+
+contract Named is Owned, Destructible { // Inherits only a single 'Owned', not twice.
+   
+}
+
+```
+
+### A case analysis : 
+
+1. A contract has defined some functions as `virtual`. Another contract inherits from it.
+
+   - This is the case with contracts like `ERC20`. They define some functionality and let children **extend** that functionality. Note that the extension is a **Choice**.
+   - For example, the `transfer` function of `ERC20` is virtual. Which means you can implement your own `transfer` function using override, **while also using openzeppelin's code by just saying** `super.transfer()`. 
+
+2. A contract has **declared some functions as virtual** but did **not define them**. 
+
+   - This makes the above contract `abstract`. Any child inheriting them **can't be instantiated without defining that functionality**.
+   - Contrast to above, this isn't a choice, it's a **burden** on the child contract.
+   - But why? Consider a case where there is an `interface` (more on **interface later**) or `abstract contract` called `willDoSomething`. 
+   - This tells the compiler/guarantees the user that **contracts inheriting `willDoSomething` will actually do something**.
+   - This can be used to make sure that **A standard is adhered and implemented**. Hence the word `IERC20` in libraries. `IERC20` is the interface telling us the rules of the **ERC20 standard**. The interface itself `IERC20` **does not ** implement anything. It **Forces** inheriting members to complete the functionality so that standards are met.
+   - A little gotcha, `abstract contract`s cannot cannot override an implemented virtual function with an unimplemented one. In simple words, **you can enforce your children to write/define an implementation, but can't deny them the functionality passed from above**. 
+
+3. An `abstract contract` or `interface` is defined/imported and not inherited. Used as a **variable inside a contract**
+
+   - This is the case when you **want to assure compiler that it need not throw undefined** errors.
+   - Consider a case where your contract wanted to **use Uniswap** contracts inside your contract. How do you tell your compiler that **Uniswap docs guarantee this functionality, so I'm gonna use it**?
+   - This is where interface comes in. See below : 
+
+   ```solidity
+   import '@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol';
+   
+   contract swapExample {
+     ISwapRouter public immutable swapRouter;
+   
+     constructor(ISwapRouter _swapRouter) {
+             swapRouter = _swapRouter;
+         }
+         
+         
+     function swapExactInputSingle(uint256 amountIn) external returns (uint256 amountOut) 
+     {
+       ISwapRouter.ExactInputSingleParams memory params = // Using interface's struct
+       ISwapRouter.ExactInputSingleParams({
+       tokenIn: DAI,
+       tokenOut: WETH9,
+       fee: poolFee,
+       recipient: msg.sender,
+       deadline: block.timestamp,
+       amountIn: amountIn,
+       amountOutMinimum: 0,
+       sqrtPriceLimitX96: 0
+       });
+   
+       // The call to `exactInputSingle` executes the swap.
+       amountOut = swapRouter.exactInputSingle(params); // Using interface's function
+      }
+   }
+   
+   ```
+
+   - Uniswap has developed and deployed their **SwapRouter** contract somewhere else but your compiler needs to **have a reference** to check what functions and structs/vars it supports or not.
+   - For that purpose, uniswap has released an **Interface** so that you can import it and **make the compiler not yell while also getting typed reference**.
+
+#### `Interface` vs `abstract contract` : 
+
+1. Both are used to force reference implementation of children as told above.
+2. Differences : 
+   - `abstract contract` is still a contract. It can **have state variables, inherit from other contracts, have a contructor and even define some modifiers ** . All that a normal contract can do, just instantiation can't be done.
+   - `interface` cannot do all that. `interface` purely is a **template** forcing inheriting children to implement it. So just a template, nothing like a contract. So it **cannot have state, cannot define ANY function implemented, cannot have a contructor, cannot declare modifiers** and **all functions must be virtual and external** although **virtual keyword** is implicit.
+   - But the template extenstion is still possible. `abstract contract`s can inherit whatever they want and `interfaces` can only inherit other interfaces.
+
+#### Function Overriding : 
+
+1. Functions in base contracts need to specify that they can be overriden by child functions using the `virtual` modifier.
+2. Functions in child contracts need to specify which functions they are overriding by using the **same signature** as base contract function. I.e **same name and return type**, and also need to specify the `override` modifier.
+3. When a child function calls `super.foo()`, solidity searches for it **in parents one level above and in the order** **right to left of `is` directive**(if multiple level 1 parents implement same function).
+4. You can also always explicitly call a function of a contract in the inheritance path by specifying which contract you are referring to `twoLevelsUpParent.foo()`.
+5. `Override` needs to specify which contract's functions you are overriding when multiple inheritance is in play. See below
+
+```solidity
+contract A {
+    uint public x;
+    function setValue(uint _x) public virtual {
+        x = _x;
+    }
+}
+
+contract B {
+    uint public y;
+    function setValue(uint _y) public virtual {
+        y = _y;
+    }
+}
+
+contract C is A, B {
+    function setValue(uint _x) public override(A,B) {
+        A.setValue(_x);
+    }
+}
+```
+
+5. Functions can be both **virtual and override** at the same time. So they can implement/extend some functionality via `override` and also force children to extend this functionality through `virtual`.
+6. Note that you can't override parent's `external` function and then try something like `super.this.f()`. Simply put, you can't call parent's external functions if you've already overriden them in the child.
