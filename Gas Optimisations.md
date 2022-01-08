@@ -9,3 +9,15 @@ Ironically, operations with **32 bytes** costs less as no extra operations. So *
 Recall that structs and arrays start at a diff slot. So inside a struct declaring `uint128, uint128, uint256` is better optimised as just **2 slots** in storage.
 
 But, `uint128, uint256, uint128` is worst due to **3 slots** as storage make a **new slot** if a variable can't fit.
+
+#### Creating a function for encoding function selector : 
+
+Instead of `addr.call(abi.encodeWithSignature("transfer(address,uint256)", 0xSomeAddress, 123))`, we can prevent computing the signature everytime and let a function do it like this,
+
+```solidity
+function getSelector(string calldata _func) external pure returns (bytes4) {
+        return bytes4(keccak256(bytes(_func)));
+    }
+```
+
+And use `addr.call(getSelector(funcName), 0xSomeAddress, 123))`. This saves a tiny amount of gas.
