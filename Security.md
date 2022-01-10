@@ -14,5 +14,15 @@ Never try to calculate the balance of the contract using manual counters. A vuln
 
 Always use `balance(this)` to get the balance of contract.
 
+#### Math Outliers : 
+
+EVM defines `0**0` as `1`.
+
+Because of wrapping, `assert(x == -x)` becomes **true** when `x = type(int).min` as positive overflows and becomes `int.MIN` again. 
+
+Right and left shift results are capped at the type extremes.
+
+Division by zero and Modulo by zero can't be suppresed with even `unchecked{}` as they are `panic` errors.
+
 
 

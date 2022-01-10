@@ -10,7 +10,7 @@
 6. Note that **strings and byteX** types are **Big endian.** While other value types are **little endian**. 
 7. **Mapping** can have any type as key except user defined types like *Array, Struct and Mapping*. The value can be anything, **even user defined types**
 8. Mappings can only be defined in storage, i.e as state variables. Even if something like a **struct contains a mapping**, that struct **can't be instantiated inside a function** as **memory does not allow mappings even if they are inside some allowed type**. 
-9. **Enums** are just like C. Can have a value of only one of it's members at a time. Members are indexed from 0. Returning enums returns **uint** as **ABI does not have the concept of Enum**. Also, defualt value of enum is **first member**. 
+9. **Enums** are just like C. Can have a value of only one of it's members at a time. Members are indexed from 0. Returning enums returns **uint** as **ABI does not have the concept of Enum**. Also, defualt value of enum is **first member**. Can assign integer `i` to `enum` who's value becomes `i`th member. Out of bounds assignment raises a `panic` error. Max 256 members.
 
 ```solidity
 contract Enum {
@@ -463,7 +463,7 @@ event Deposit(
 
 ## C3 Linearization : 
 
-1. **Very important check this**. Note that as stated above, parent constructors are called in order of **left to right of `is` directive**.
+1. **Very important check this**. Note that as stated above, parent constructors are called in order of **left to right of `is` directive**. The below discussion is how **super** changes based on linearisation.
 
 ```solidity
 contract Granny {
@@ -539,7 +539,7 @@ I am Kiddo and I call Daddy
 
 - Then based on `Child`'s `is` directive, `Daddy` is called. `Daddy` tries to call `Granny` but remember that **virtual inheritance prevents this**. Already an object is **existing in the inheritance graph, so no new Grannys**.
 
-- Now something interesting happens. **Because recent call happened from `Mommy`, the parent of `Daddy` becomes `Mommy`**.
+- Now something interesting happens. **Because recent contructor happened from `Mommy`, the parent of `Daddy` becomes `Mommy`**.
 
 - Finally, `child` constructor finishes up and `Daddy` becomes the parent as it is the recently called one.
 
@@ -683,7 +683,7 @@ contract C is A, B {
 
      - If that function is `non payable`, **transaction is rejected**
 
-     - If the function does not exist, a fallback function is called. There can be **atmost** one fallback function. The exact syntax is
+     - If the function does not exist, a fallback function is called if present. There can be **atmost** one fallback function. The exact syntax is
 
        ```solidity
        fallback () external [payable] {...}
@@ -709,7 +709,7 @@ contract C is A, B {
 
   Transactions without `msg.data` that send ether to a contract **fail and get rejected** if the contract does not have a `receive` and also does not have `fallback`. They also fail if the `msg.data` intends to call a function but it is not `payable`.
 
-	3. **A special case**, due to design of EVM, coinbase txns and self-destruct txns can 		forcibly send ether to a contract. It doesn't matter `receive` or `payable` exists or 		`msg.data` is empty or not. **The Ether is FORCED IN**. 
+	3. A special case, **due to design of EVM**, coinbase txns and self-destruct txns can 	forcibly send ether to a contract. It doesn't matter receive or payable exists or 		msg.data is empty or not. **The Ether is FORCED IN.** 
 
 ### Sending Ether :
 
@@ -757,6 +757,7 @@ contract A {
 
 2. Executes the **code of contract B with the storage of contract A**. This functionality is used mostly in **upgradeable contracts**.
 3. Retains and forwards the `msg.sender` and `msg.value` . `this` in external contact/library refers to callee's context.
+4. When an EVM call occurs for external functions(`delegatecall`), storage references are not copied as `delegatecall` shares the state. But `memory` objects are copied and sent as `memory` is not shared in `delegatecall`.
 
 ## Libraries : 
 
