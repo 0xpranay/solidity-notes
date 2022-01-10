@@ -7,7 +7,7 @@
 3. `bool`s are true/false. Default is false.
 4. `address` type is a valid address. Comes in 2 flavors, normal `address` and `address payable`. Difference is that payable type has 2 extra methods.  `transfer` and `send`.
 5. `Struct` is also a type. But note that it is just a **template**. We need to declare somewhere else potentially inside a mapping or something to **instantiate** the actual variable like, let there be `struct S` template and we need to do something like `S a;` **to create an object a of type S.**
-6. Note that **strings and byteX** types are **Big endian.** While other value types are **little endian**. 
+6. Note that **strings and bytesX** types are **Big endian.** While other value types are **little endian**. `bytesX[k]` gives `k`th byte, it is **read only**.
 7. **Mapping** can have any type as key except user defined types like *Array, Struct and Mapping*. The value can be anything, **even user defined types**
 8. Mappings can only be defined in storage, i.e as state variables. Even if something like a **struct contains a mapping**, that struct **can't be instantiated inside a function** as **memory does not allow mappings even if they are inside some allowed type**. 
 9. **Enums** are just like C. Can have a value of only one of it's members at a time. Members are indexed from 0. Returning enums returns **uint** as **ABI does not have the concept of Enum**. Also, defualt value of enum is **first member**. Can assign integer `i` to `enum` who's value becomes `i`th member. Out of bounds assignment raises a `panic` error. Max 256 members.
@@ -47,8 +47,10 @@ contract Enum {
 10. **Struct** is a user defined type. Similar to enums, **structs can also be imported**. Structs are similar to classes. To instantiate a new object, use the constructor. Bear in mind that all new objects are created in memory(as only place we can do this is inside a function) and **if the struct were to contain mapping**, solidity throws an error.
 11. Arguments to constructor **must follow parameter order** or specify `{key:value}` object if order isn't followed.
 12. **Array** is similar to other langs. `uint[] myArr`is the way to declare dynamic arrays. `uint[10] tenArray`is fixed array. Note that static array values are initialized to **zero** . Note that functions can also return arrays. `return staticOrDynamicArray`is the way. Note that if arrays grow too big, return takes more gas.
-13. Note that **memory can have only fixed size arrays** and also **can't use methods like push and pop on memory arrays**.
+13. Note that **memory can have dynamic arrays via `new`** but **can't use resize methods like push and pop on memory arrays**.
 14. using `delete myArray[i]` **does not shrink the array**. `delete` just changes values to **default value**. 
+14. You can compare two dynamic length `bytes` or `string` by using `keccak256(abi.encodePacked(s1)) == keccak256(abi.encodePacked(s2))`
+14. **string** does not have `length` property to access it's length. So to make it usable in code that relies on `length`, cast it to `bytes` with `bytes(string)` and then use it.
 
 ##### Variable Scopes : 
 
@@ -62,6 +64,29 @@ There are 3 types of variable scopes.
 
 1. `Constant`. Declared once and can't be changed
 2. `Immutable`. Can be changed only on contract instantiation i.e during inside of constructor. 
+
+#### `delete` operator : 
+
+1. `delete` operator assigns default value to the operand. It does not **remove** the element.
+2. Using it like `delete arr[3]` assigns default value to 3rd element. Array size is not reduced.
+3. `delete` ing static arrays sets all values to zero. `delete `ing dynamic arrays **sets the length of array to zero**.
+4. `mapping`s can't be deleted as EVM just stores `values` at `keccak256(key)`. And EVM does not know what `key`s are beforehand.
+5. `delete`ing `struct` resets members to their default values.
+
+#### Truncation and padding : 
+
+1. Note that because `bytes` and `string` are **Big endian**, any paddings are added after and any truncations are done from first value.
+2. A simple logic is that, paddings are obviously added **after** the value and truncations are done by fitting values from **start** and leaving that don't fit.
+
+```solidity
+bytes2 a = 0x1234;
+uint32 b = uint16(a); // b will be 0x00001234
+uint32 c = uint32(bytes4(a)); // c will be 0x12340000
+uint8 d = uint8(uint16(a)); // d will be 0x34
+uint8 e = uint8(bytes1(a)); // e will be 0x12
+```
+
+3. Other types are **little endian** and it is reverse. See above
 
 #### Accounts :
 
