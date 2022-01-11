@@ -1,4 +1,4 @@
-# General Notes
+General Notes
 
 ##### Types : 
 
@@ -47,10 +47,12 @@ contract Enum {
 10. **Struct** is a user defined type. Similar to enums, **structs can also be imported**. Structs are similar to classes. To instantiate a new object, use the constructor. Bear in mind that all new objects are created in memory(as only place we can do this is inside a function) and **if the struct were to contain mapping**, solidity throws an error.
 11. Arguments to constructor **must follow parameter order** or specify `{key:value}` object if order isn't followed.
 12. **Array** is similar to other langs. `uint[] myArr`is the way to declare dynamic arrays. `uint[10] tenArray`is fixed array. Note that static array values are initialized to **zero** . Note that functions can also return arrays. `return staticOrDynamicArray`is the way. Note that if arrays grow too big, return takes more gas.
+12. `bytes.concat(...) returns (bytes memory)` can be used to `concat` variable number of `bytes` and also `bytesX` types into a single `bytes`.
 13. Note that **memory can have dynamic arrays via `new`** but **can't use resize methods like push and pop on memory arrays**.
 14. using `delete myArray[i]` **does not shrink the array**. `delete` just changes values to **default value**. 
 14. You can compare two dynamic length `bytes` or `string` by using `keccak256(abi.encodePacked(s1)) == keccak256(abi.encodePacked(s2))`
 14. **string** does not have `length` property to access it's length. So to make it usable in code that relies on `length`, cast it to `bytes` with `bytes(string)` and then use it.
+14. A single character is **1 byte**.(*self idea, needs reference*).
 
 ##### Variable Scopes : 
 
@@ -796,11 +798,70 @@ contract A {
 solc --libraries "file.sol:Math=0x1234567890123456789012345678901234567890 file.sol:Heap=0xabCD567890123456789012345678901234567890"
 ```
 
+# Global Units : 
 
+- `wei` `gwei` and `ether` are global keywords in solidity. Values are..
 
+```solidity
+assert(1 wei == 1);
+assert(1 gwei == 1e9);
+assert(1 ether == 1e18);
+```
 
+- Time units are present but should not be used as exact measures.
 
+```solidity
+1 == 1 seconds
+1 minutes == 60 seconds
+1 hours == 60 minutes
+1 days == 24 hours
+1 weeks == 7 days
+```
 
+- `block.<property>` is also a globally available data. Check [exhaustive list](https://docs.soliditylang.org/en/v0.8.11/units-and-global-variables.html#block-and-transaction-properties). Some are listed below
+
+  - `block.coinbase` is the miner's address. It is `payable`
+  - `block.timestamp` is the current block's timestamp since UNIX epoch
+  - `msg.sender` is the recent caller. `tx.origin` is the originator of the whole call chain. `msg.value` is the `ether` value of transaction.
+  - `gasleft()` returns **gas left in the current call**.
+
+- **Some considerations** : properties like `tx.*` and `block.*` **fail/not accurate** when being executed off-chain or not executed **in an actual block**. Think **flashbots** simulate part. The above properties might be supplied diff value compared to what original can be in actual mainnet block.
+
+- Do not rely on `block.timestamp` or `blockhash` as a source of randomness.
+
+- Use `keccak256(bytes memory) returns (bytes32)` can be used to compute `keccak256` hash of any kind of inputs. Most useful in **comparing two strings or bytes**. 
+
+- `ecrecover(bytes32 hash, uint8 v, bytes32 r, bytes32 s) returns (address)` can be used to verify a signature. Ask the user on Dapp to sign a message, take the input as bytes and then slice it as below:
+
+  - `r` = first 32 bytes of signature
+  - `s` = second 32 bytes of signature
+  - `v` = final 1 byte of signature
+  - That will return an `address` of who signed the signature. Note that the `hash` is the **hash of the message user has signed, the format for that is,** 
+
+  ```solidity
+  hashToBeSuppliedToEcrecover = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n",len(_message), keccak256(_message)));
+  ```
+
+- There seems to be an issue with signature duping but was fixed, while `ecrecover` is not fixed. So docs recommend using **OpenZeppelin ECDSA Library**.
+
+- `address.code` returns code at the address. Is empty `bytes` array if account is an `EOA`. 
+
+- `address.balance` is the balance of an account.
+
+### Contract Meta : 
+
+- Can use following properties to gert more info on contract types. 
+
+- Let `C` be a contract type, `I` be an interface type.
+
+  - | Code                              | Property                                                     |
+    | --------------------------------- | ------------------------------------------------------------ |
+    | `type(C).name`                    | Name of contract                                             |
+    | `type(C).creationCode`            | The compile time bytecode                                    |
+    | `type(C).runtimeCode`             | The bytecode after constructor ran. There are some caveats, check docs. |
+    | `type(interfaceType).interfaceId` | A `bytes4` interface type. Use to check if a contract supports interfaces like `IERC20` and so on.. |
+
+    
 
 
 
