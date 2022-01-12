@@ -18,9 +18,9 @@
 
 `keccak256(h(k) . p)` where `.` is concatenation and `h(k)` is a function based on actual type of key.
 
-​				If key is a **value type**, `h(k)` applies a padding to `k` to make it a 32 byte sized value.
+​				If key is a **value type**, `h(k)` applies a **padding** to `k` to make it a 32 byte sized value.
 
-​				If key is a **string or byteX**, `h(k)`just computes `keccak256` hash of unpadded data.
+​				If key is a **string or byteX**, `h(k)`just computes `keccak256` hash of **unpadded** data.
 
 Remember that mappings here are different from C and other langs. While other langs store **keys of a mapping** and access values based on that internally, **solidity lacks a concept of key**. Wait wut?
 

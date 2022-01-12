@@ -4,7 +4,7 @@ Becuase solidity operates in 32 bytes at once, read/write to an element less tha
 
 Ironically, operations with **32 bytes** costs less as no extra operations. So **it is beneficial** to use reduced size elements like `uint8` **if you read them all at once, like a whole 32 byte slots at once as there isn't any padding operation involved **. So reading 4 `uint64` which are declared contiguosly is better **as there aren't any discard operations involved.** 
 
-###### Solution :
+##### Solution :
 
 Recall that structs and arrays start at a diff slot. So inside a struct declaring `uint128, uint128, uint256` is better optimised as just **2 slots** in storage.
 
@@ -21,3 +21,7 @@ function getSelector(string calldata _func) external pure returns (bytes4) {
 ```
 
 And use `addr.call(getSelector(funcName), 0xSomeAddress, 123))`. This saves a tiny amount of gas.
+
+
+
+- **Constants** don't occupy any storage. They're always **replaced when needed in the code like a macro**. 

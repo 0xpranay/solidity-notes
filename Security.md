@@ -1,4 +1,4 @@
-#### Stack Swap
+## Stack Swap
 
 EVM allows an opcode that let's you swap last 16th value. If a function invokes other function, the stack might propagate and the inner function may access the caller's variables. (*Self idea, needs reference to make sure*).
 
@@ -6,15 +6,15 @@ EVM allows an opcode that let's you swap last 16th value. If a function invokes 
 
 ---?
 
-#### Ether Balance
+## Ether Balance
 
 Never try to calculate the balance of the contract using manual counters. A vulnerable approach is that everytime the contract receives ether, based on the functions implemented, **people update state variables as a counter/balance received**. This is wrong as `coinbase` transactions and `selfdestruct` destination transactions can **Force Ether in!**. They do not trigger any functions and don't care if you have `payable` functions or `fallback` functions. **The ether balance increases**.
 
 ##### Solution : 
 
-Always use `balance(this)` to get the balance of contract.
+Always use `balance(this)` to get the balance of contract. This also is **NOT** good. See below.
 
-#### Outliers : 
+## Outliers : 
 
 EVM defines `0**0` as `1`.
 
@@ -26,5 +26,19 @@ Division by zero and Modulo by zero can't be suppresed with even `unchecked{}` a
 
 Calling a function after using `delete` on it causes a `panic` error.
 
+### Overflow/Underflow
 
+Prior to 0.8, solidity used to underflow/overflow without any errors.
+
+After 0.8, an error is thrown. More better, use something like **SafeMath library**
+
+### Selfdestruct : 
+
+A contract can self destruct itself and force it's ether into a victim contract. This makes the victim **not aware of balance increase** as **no function, not even fallback/receive is called for a self destruct**. So using `address(this).balance` might break **when someone does the selfdestruct attack**.
+
+Contrast this with above, we have 2 choices. 
+
+- **If you want to handle legit users depositing ETH, use the `balance` state variable**
+- **If you also want to handle force sends, then use `this.balance`**
+- My take : **Go with the `balance` state variable and also include a function that can take the difference `this.balance - balance` and call deposit function again**
 
