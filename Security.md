@@ -42,3 +42,12 @@ Contrast this with above, we have 2 choices.
 - **If you also want to handle force sends, then use `this.balance`**
 - My take : **Go with the `balance` state variable and also include a function that can take the difference `this.balance - balance` and call deposit function again**
 
+### The blockchain is transparent :
+
+- All info about state variables can be accessed with a web3 client/a node. So even though the **visibility** is just **private**, anyone with node access can see the contents of the data.
+
+### Randomness:
+
+- The blockchain in it's intended way to work is **Deterministic**. Dont' use `block.timestamp` and `block.blockhash` as source of randomness.
+- Use something like chainlink VRF.
+
