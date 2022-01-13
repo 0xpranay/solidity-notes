@@ -51,3 +51,8 @@ Contrast this with above, we have 2 choices.
 - The blockchain in it's intended way to work is **Deterministic**. Dont' use `block.timestamp` and `block.blockhash` as source of randomness.
 - Use something like chainlink VRF.
 
+#### `require` is also treated as a function : 
+
+- The `require` function is evaluated just as any other function. This means that all arguments are evaluated before the function itself is executed. In particular, in `require(condition, f())` the function `f` is executed even if `condition` is true.
+- So don't be fooled by some honeypot contract's code saying `require(obviouslyTrue, malicoiusCode())`. 
+
