@@ -861,9 +861,14 @@ assert(1 ether == 1e18);
     | `type(C).runtimeCode`             | The bytecode after constructor ran. There are some caveats, check docs. |
     | `type(interfaceType).interfaceId` | A `bytes4` interface type. Use to check if a contract supports interfaces like `IERC20` and so on.. |
 
-    
 
 
+### ABI Usage : 
+
+- `(uint a, uint[2] memory b, bytes memory c) = abi.decode(data, (uint, uint[2], bytes))` decodes the abi encoded data.
+- `abi.encode(...) returns (bytes memory)` encodes stuff using padding and hence no collisions when dynamic data is involved.
+- `abi.encodePacked(...) returns (bytes memory)` does packed encoding. Should **NOT be used when >2 dynamic arguments are involved due to hash collision, like** `A, AB` and `AA, B` give same encoding here due to no padding and hence their hashes **collide**.
+- `abi.encodeWithSelector(bytes4 selector, ...) returns (bytes memory)` same as `abi.encode` but prepends the `selector` . Useful when doing raw txns, selector is used to specify `function signature`.
 
 
 
