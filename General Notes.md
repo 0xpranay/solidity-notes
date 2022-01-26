@@ -242,8 +242,8 @@ uint8 e = uint8(bytes1(a)); // e will be 0x12
 1. EVM is a stack based machine. Sure, permanent storage and memory exist but it can't just be working with them alone. Computers are **register based machines**, they store intermediate values in these registers and use them to compute further.
 2. **EVM instead of registers uses stack.** 
 3. How does it matter to contract? Note that **value types** like uint, bool when declared inside a function **are created on the stack**!
-4. Similar to memory, **stack is newly created when a function is called. Hence the word stacktrace**.
-5. *Security Note* : EVM allows an opcode that let's you swap last 16th value. If a function invokes other function, the stack might propagate and the inner function may access the caller's variables. (*Self idea, needs reference to make sure*).
+4. Similar to memory, **stack is newly created when an external call is made. Hence the word stacktrace**.
+5. *Security Note* : EVM allows an opcode that let's you swap last 16th value. If a function invokes other function, the stack might propagate and the inner function may access the caller's variables. **Turns out, No! Stack is available only between external calls**.
 
 
 
@@ -543,7 +543,7 @@ I am Kiddo and I call Daddy
 
 ##### Magic? No, it's C3 Linearization : 
 
-- Solidity uses C3 linearization to resolve **the diamond inheritance problem**. It **serializes the diamond shape into a linear line**. The order of inheritance is **still conserved**, but **sibling parents are placed next to each other, based on who was called first.**.
+- Solidity uses C3 linearization to resolve **the diamond inheritance problem**. It **serializes the diamond shape into a linear line**. The order of inheritance is **still conserved**, but **sibling parents are placed next to each other, based on who was called first.**
 
 - ```
     	Granny															Granny
@@ -736,7 +736,7 @@ contract C is A, B {
 
   Transactions without `msg.data` that send ether to a contract **fail and get rejected** if the contract does not have a `receive` and also does not have `fallback`. They also fail if the `msg.data` intends to call a function but it is not `payable`.
 
-	3. A special case, **due to design of EVM**, coinbase txns and self-destruct txns can 	forcibly send ether to a contract. It doesn't matter receive or payable exists or 		msg.data is empty or not. **The Ether is FORCED IN.** 
+	3. A special case, **due to design of EVM**, coinbase(miner reward) txns and self-destruct txns can forcibly send ether to a contract. It doesn't matter receive or payable exists or msg.data is empty or not. **The Ether is FORCED IN.** 
 
 ### Sending Ether :
 

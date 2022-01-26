@@ -14,7 +14,7 @@
 - Now assume that all fixed size elements are stored and now we have **dynamic arrays and mappings left to allocate.**
 
 1. **Dynamic Arrays** :  After allocating fixed types as above, we are now on `p`th 32 byte slot. For **dynamic arrays**, this slot contains **number of elements in this dynamic arrays** i.e length. `p` here is the pointer/memory address value. Actual array data is stored at `keccak256(p)`. That is, while location `p` contains number of elements of dynamic array, **hash of p** **is where the array actually starts**. Now elements in array itself are stored as general above rules. Fit in?pack em. Can't fit? new slot. Check out **byte1[] vs bytes and string below**.
-2. **Mappings : ** After allocation of other stuff, let's say we ended up on `p`th slot. This slot **stays empty**. Let's say we want to access element with `k as key`. The formula is
+2. **Mappings : ** After allocation of fixed types, let's say we ended up on `p`th slot. This slot **stays empty**. Let's say we want to access element with `k as key`. The formula is
 
 `keccak256(h(k) . p)` where `.` is concatenation and `h(k)` is a function based on actual type of key.
 
