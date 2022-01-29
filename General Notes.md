@@ -1,3 +1,7 @@
+---
+title : General Notes
+---
+
 [**← Back to Homepage**](https://0xpranay.github.io/solidity-notes/)
 
 **General Notes** : The doc explaining the syntax part along with some extra explanations that help understand the concept. Based on **Solidity Docs**, **ETH StackExchange** and more.
