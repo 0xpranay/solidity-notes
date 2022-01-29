@@ -1,6 +1,3 @@
-<p xmlns:dct="http://purl.org/dc/terms/">
-  <a rel="li
-
 ## Welcome to Solidity Notes
 
 Visit the [repository on GitHub](https://github.com/0xpranay/solidity-notes) to get access to Markdown files and download them. You can also submit a PR if you find any error in this page or the notes. Check below for topicwise details. Written for Solidity version **0.8.11**.
@@ -96,19 +93,6 @@ This document mentions some things a smart contract developer can do to save gas
 
 <p xmlns:dct="http://purl.org/dc/terms/">
   <a rel="license"
-     href="http://creativecommons.org/publicdomain/zero/1.0/">
-    <img src="http://i.creativecommons.org/p/zero/1.0/88x31.png" style="border-style: none;" alt="CC0" />
-  </a>
-  <br />
-  To the extent possible under law,
-  <a rel="dct:publisher"
-     href="https://github.com/0xpranay">
-    <span property="dct:title">Pranay Reddy</span></a>
-  has waived all copyright and related or neighboring rights to
-  <span property="dct:title">Solidity Notes</span>.
-</p>
-
-cense"
      href="http://creativecommons.org/publicdomain/zero/1.0/">
     <img src="http://i.creativecommons.org/p/zero/1.0/88x31.png" style="border-style: none;" alt="CC0" />
   </a>
