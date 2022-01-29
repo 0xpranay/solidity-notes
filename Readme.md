@@ -1,4 +1,10 @@
-#                 Solidity Notes
+#       
+
+```html
+<div align="center">
+  <h1 align="center">Awesome Solidity</h1>
+</div>
+```
 
 ### What
 
