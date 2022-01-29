@@ -1,6 +1,6 @@
-General Notes
+**General Notes** : The doc explaining the syntax part along with common things people overlook. Based on **Solidity Docs**, **ETH StackExchange** and more.
 
-##### Types : 
+#### Types : 
 
 1. `uint8, uint16, uint<X>` are unsigned ints with X bits of capacity. 
 2. `int8, int32, int<X>` are signed integers with X bits of capacity.
@@ -297,6 +297,8 @@ function assigned()
 2. Consider `Error`  like a soft check exception you can throw in your contracts. Like **Input validation or return values or state checks**
 3. `Panic` is the actual compiler/EVM screaming that something terribly bad has happened. Likes of them are *divide by zero, overflows, negative indices, large memory allocation*. There's also a special one called *compiler inserted panic*. More on that later.
 4. `Error` is the exception thrown **by your code**. Your code intended to throw that error and is not some fatal error like `panic` thrown by EVM.
+4. Also note that `assert` **consumes all gas** and throws while `require` **refunds left over gas** and throws.
+4. So consider `require` as your **intended check** while `assert` is a sanity check. Failing `assert`  should mean an overlooked edge case or a bug in code while failing `require` means just not being eligible.
 
 ### Ways you can throw Error :  
 
