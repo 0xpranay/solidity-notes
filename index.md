@@ -1,3 +1,6 @@
+<p xmlns:dct="http://purl.org/dc/terms/">
+  <a rel="li
+
 ## Welcome to Solidity Notes
 
 Visit the [repository on GitHub](https://github.com/0xpranay/solidity-notes) to get access to Markdown files and download them. You can also submit a PR if you find any error in this page or the notes. Check below for topicwise details. Written for Solidity version **0.8.11**.
@@ -6,29 +9,30 @@ Visit the [repository on GitHub](https://github.com/0xpranay/solidity-notes) to 
 
 This document explains the syntax part and then whys and whats of the syntax where applicable. Sometimes also involves code examples that bring a few gotchas to the table. Click below to view **General Notes**.
 
-[General Notes](https://github.com/0xpranay/solidity-notes/blob/main/General%20Notes.md)
+[General Notes](https://0xpranay.github.io/solidity-notes/General%20Notes)
 
 ## Internals : 
 
 This document deals with explaining the data locations and how they can affect any gas costs. Organisation of data is also explained. Click below to view **Internals**.
 
-[Internals](https://github.com/0xpranay/solidity-notes/blob/main/Internals.md)
+[Internals](https://0xpranay.github.io/solidity-notes/Internals)
 
 ## Security : 
 
 This document deals with a few security vulnerabilities involved when writing smart contracts. In the end, it also has a few points on developing smart contracts. Click below to view **Security**. 
 
-[Security](https://github.com/0xpranay/solidity-notes/blob/main/Security.md)
+[Security](https://0xpranay.github.io/solidity-notes/Security)
 
 ## Gas Optimisations : 
 
 This document mentions some things a smart contract developer can do to save gas costs. Security and Gas Optimsations by no means cover all exisiting topics, but they cover a few that are important. Click below to view **Gas Optimisations**.
 
-[Gas Optimisations](https://github.com/0xpranay/solidity-notes/blob/main/Gas%20Optimisations.md).
+[Gas Optimisations](https://0xpranay.github.io/solidity-notes/Gas%20Optimisations).
 
 <div align="center">
   <h1 align="center">Solidity Notes</h1>
 </div>
+
 
 ### What
 
@@ -47,7 +51,7 @@ This document mentions some things a smart contract developer can do to save gas
 ### Who
 
 - This repository can be used by people who are new to solidity but not to programming altogether. You're okay if you know what variables are and how functions are written to understand this doc.
--  **This is written with an absolute solidity beginner in mind**. But I wouldn't recommend learning programming starting with solidity.
+- **This is written with an absolute solidity beginner in mind**. But I wouldn't recommend learning programming starting with solidity.
 
 ### How
 
@@ -71,12 +75,12 @@ This document mentions some things a smart contract developer can do to save gas
 - Build as many dapps as you can while also maintaining the quality part. Write more and more tests for your contracts and try to achieve good coverage. Host your working dapps and let people know they can use it. 
 - And most importantly, keep up with the industry by following all the new updates and learning them. Subscribe to [Week In Ethereum News](https://weekinethereumnews.com/) and alike. Also follow @samczsun and take a look at his [blog](https://samczsun.com/) where he delves into deeper concepts.
 
-##### Want to contribute?
+#### Want to contribute?
 
 - While I can say with confidence that I checked all resources while writing the docs, I'm also sure that there will be errors. 
 - Please make a PR if you found any error whether conceptually wrong or a simple grammatical error.
 
-##### Want to make me happy?
+#### Want to make me happy?
 
 - Please leave a star 🌟 on the repo if you've found this resource helpful so that many others can discover it.
 
@@ -92,6 +96,19 @@ This document mentions some things a smart contract developer can do to save gas
 
 <p xmlns:dct="http://purl.org/dc/terms/">
   <a rel="license"
+     href="http://creativecommons.org/publicdomain/zero/1.0/">
+    <img src="http://i.creativecommons.org/p/zero/1.0/88x31.png" style="border-style: none;" alt="CC0" />
+  </a>
+  <br />
+  To the extent possible under law,
+  <a rel="dct:publisher"
+     href="https://github.com/0xpranay">
+    <span property="dct:title">Pranay Reddy</span></a>
+  has waived all copyright and related or neighboring rights to
+  <span property="dct:title">Solidity Notes</span>.
+</p>
+
+cense"
      href="http://creativecommons.org/publicdomain/zero/1.0/">
     <img src="http://i.creativecommons.org/p/zero/1.0/88x31.png" style="border-style: none;" alt="CC0" />
   </a>
