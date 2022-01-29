@@ -6,7 +6,7 @@ title : Solidity Internals
 
 **Internals :** This doc explains the internals of data locations. While **General Notes** mentions some differences, this doc delves into more explanation.
 
-### Internally, data locations are of 3 types.
+### Internally, data locations are of 4 types.
 
 1. `storage`: **The actual store on the blockchain**. State variables here persist after any execution. Highest gas cost to manipulate.
 1. **Memory** is data during execution. It can only be created inside functions as local variables. Miner's RAM/Stack is where memory data lives. After each function call completes it is wiped. Costs less gas than storage
