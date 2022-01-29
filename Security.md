@@ -4,7 +4,7 @@
 
 Never try to calculate the balance of the contract using manual counters. A vulnerable approach is that everytime the contract receives ether, based on the functions implemented, **people update state variables as a counter/balance received**. This is wrong as `coinbase` transactions and `selfdestruct` destination transactions can **Force Ether in!**. They do not trigger any functions and don't care if you have `payable` functions or `fallback` functions. **The ether balance increases**. Check out [GridLock's Bug](https://medium.com/@nmcl/gridlock-a-smart-contract-bug-73b8310608a9).
 
-##### Solution : 
+#### Solution : 
 
 Always use `balance(this)` to get the balance of contract. This also is **NOT** good. See below.
 
@@ -24,7 +24,7 @@ Calling a function after using `delete` on it causes a `panic` error.
 
 Prior to 0.8, solidity used to underflow/overflow without any errors.
 
-After 0.8, an error is thrown. More better, use something like **SafeMath library**
+After v0.8, an error is thrown. Use something like **SafeMath library** if Solidity version is below v0.8.
 
 ## 4. Selfdestruct : 
 
@@ -67,7 +67,7 @@ Contrast this with above, we have 2 choices.
 
 ## 11. Writing critical code yourself : 
 
-- **DO NOT EVER WRITE SOMETHING LIKE ** `ecrecover` **YOURSELF!**. Use industry standard libraries like ones at openzeppelin. 
+- **DO NOT EVER WRITE SOMETHING LIKE  `ecrecover` YOURSELF!**. Use industry standard libraries like ones at openzeppelin. 
 
 ## 12. Replay Attacks : 
 
@@ -87,7 +87,7 @@ Contrast this with above, we have 2 choices.
 - Using `tx.origin` can be attacked as the legit owner/user can be phished to call a malicious contract and then that contract can gain authorization to the victim contract.
 - But `tx.origin` isn't all bad. It can also be used if you know what you're doing. Something like blacklisting an EOA from calling your contract can be done this using it.
 
-### 15. Use the withdrawal pattern over forwarding:
+## 15. Use the withdrawal pattern over forwarding:
 
 - Often in something like a dividends contract, when someone deposits, the contract accepts the payment and then **tries to send each past depositor their ETH reward**.
 - This is bad for multiple reasons. First, the **contract might hit the gas limit**, looking at you  [GovernMental](https://www.reddit.com/r/ethereum/comments/4ghzhv/governmentals_1100_eth_jackpot_payout_is_stuck/).
@@ -128,10 +128,10 @@ Contrast this with above, we have 2 choices.
 
 
 
-#### A few things to consider when developing smart contracts : 
+## A few things to consider when developing smart contracts : 
 
-1. Testing is more important. Using Remix to quicky prototype or just build something for fun is good, in fact Remix is awesome.
-2. But, when you want to build something serious for even for portfolio or create a Dapp/contract for contributing to a community, **testing is important**.
+1. Testing is more important. Using Remix to quickly prototype or just build something for fun is good. In fact Remix is awesome to learn solidity syntax.
+2. But, when you want to build something serious for even for your portfolio or create a Dapp/contract for contributing to a community, **testing is important**.
 3. **Always use industry standard libraries like openzeppelin**. And still write tests, their library is tested but your extension code is not.
 4. Learn **Waffle testing**. Hardhat users, have a look at the `hardhat-waffle` library [here](https://hardhat.org/plugins/nomiclabs-hardhat-waffle.html). 
 5. Use the `solidity-coverage` plugin. Good tests cover most of the code and cases. Use [this plugin](https://www.npmjs.com/package/solidity-coverage).

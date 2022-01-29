@@ -1,6 +1,6 @@
 **Internals :** This doc explains the internals of data locations. While **General Notes** mentions some differences, this doc delves into more explanation.
 
-##### Internally, data locations are of 3 types.
+### Internally, data locations are of 3 types.
 
 1. `storage`: **The actual store on the blockchain**. State variables here persist after any execution. Highest gas cost to manipulate.
 1. **Memory** is data during execution. It can only be created inside functions as local variables. Miner's RAM/Stack is where memory data lives. After each function call completes it is wiped. Costs less gas than storage
@@ -47,6 +47,8 @@ Hence, **you can't delete a mapping** as solidity does not implicitly store info
 | 0x00 to 0x3f | 64 Bytes | Scratch space for Hashing                           |
 | 0x40 to 0x5f | 32 Bytes | Free memory pointer (current allocated memory size) |
 | 0x60 to 0x7f | 32 Bytes | Zero slot                                           |
+
+
 
 - The Zero slot is used as initial value for dynamic memory arrays. **Recall that dynamic size arrays need the first slot to know the size and also to hash that slot to get actual array store**  *(`p`th slot theory from storage)*.
 - So we should never write to the zero slot. But don't worry, on a high level, the free **memory pointer points to `0x80` intitally** so unless we do something weird in assembly, we're cool.
