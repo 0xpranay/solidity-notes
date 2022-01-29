@@ -6,25 +6,25 @@ Visit the [repository on GitHub](https://github.com/0xpranay/solidity-notes) to 
 
 This document explains the syntax part and then whys and whats of the syntax where applicable. Sometimes also involves code examples that bring a few gotchas to the table. Click below to view **General Notes**.
 
-[General Notes](https://0xpranay.github.io/solidity-notes/General%20Notes)
+#### [General Notes](https://0xpranay.github.io/solidity-notes/General%20Notes)
 
 ## Internals : 
 
 This document deals with explaining the data locations and how they can affect any gas costs. Organisation of data is also explained. Click below to view **Internals**.
 
-[Internals](https://0xpranay.github.io/solidity-notes/Internals)
+#### [Internals](https://0xpranay.github.io/solidity-notes/Internals)
 
 ## Security : 
 
 This document deals with a few security vulnerabilities involved when writing smart contracts. In the end, it also has a few points on developing smart contracts. Click below to view **Security**. 
 
-[Security](https://0xpranay.github.io/solidity-notes/Security)
+#### [Security](https://0xpranay.github.io/solidity-notes/Security)
 
 ## Gas Optimisations : 
 
 This document mentions some things a smart contract developer can do to save gas costs. Security and Gas Optimsations by no means cover all exisiting topics, but they cover a few that are important. Click below to view **Gas Optimisations**.
 
-[Gas Optimisations](https://0xpranay.github.io/solidity-notes/Gas%20Optimisations).
+#### [Gas Optimisations](https://0xpranay.github.io/solidity-notes/Gas%20Optimisations).
 
 <div align="center">
   <h1 align="center">Solidity Notes</h1>
