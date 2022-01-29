@@ -1,10 +1,6 @@
-#       
-
-```html
 <div align="center">
-  <h1 align="center">Awesome Solidity</h1>
+  <h1 align="center">Solidity Notes</h1>
 </div>
-```
 
 ### What
 
