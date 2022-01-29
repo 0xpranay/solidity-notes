@@ -1,3 +1,5 @@
+[**← Back to Homepage**](https://0xpranay.github.io/solidity-notes/)
+
 **Gas Optimisations** : This doc suggests some optimisations to save gas. Sources are mostly from **Solidity Docs**, **StackExchange** and more.
 
 ## Read/Write costs : 

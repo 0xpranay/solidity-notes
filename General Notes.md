@@ -1,3 +1,5 @@
+[**← Back to Homepage**](https://0xpranay.github.io/solidity-notes/)
+
 **General Notes** : The doc explaining the syntax part along with some extra explanations that help understand the concept. Based on **Solidity Docs**, **ETH StackExchange** and more.
 
 ## Types : 
@@ -52,7 +54,6 @@ contract Enum {
 14. using `delete myArray[i]` **does not shrink the array**. `delete` just changes values to **default value**. 
 14. You can compare two dynamic length `bytes` or `string` by using `keccak256(abi.encodePacked(s1)) == keccak256(abi.encodePacked(s2))`
 14. **string** does not have `length` property to access it's length. So to make it usable in code that relies on `length`, cast it to `bytes` with `bytes(string)` and then use it.
-14. A single character is **1 byte**.(*self idea, needs reference*).
 
 #### Variable Scopes : 
 
@@ -289,7 +290,8 @@ function assigned()
 2. Calling functions of a contract from another contract : 
    - Both constant and non constant functions can return values when the caller is a contract. 
    - Note that **constant functions too cost a little when called from a contract** . 
-   -  ---------NEED TO ADD SOME HERE--------
+   -  There's always a cost incurred when calling a smart contract. Constant or Non Constant. But, becuase the nodes you use or third party APIs run actual nodes, **they return the data and don't make an EVM call and hence no gas**.
+   -  Because the contract running or the EVM for that matter doesn't have the concept of API nodes, it always bills the caller for any function. Hence, **It costs gas to call constant functions of a contract from other contract**. 
 
 ### `require`, `revert` and `assert`:
 
@@ -338,9 +340,6 @@ if(complexErrorCheck == false){
 ### Assert : 
 
 1. Assert syntax is `assert(onFalseThrowPanic)`. If the check becomes false, a panic `Panic 0x01` is thrown.
-2. What's strange is that internally, **assert actually uses revert to throw a customError**. Is that customError just called `Panic`? (*self idea, need references*).
-
-
 
 ## Modifiers : 
 
@@ -550,16 +549,7 @@ I am Kiddo and I call Daddy
 
 - Solidity uses C3 linearization to resolve **the diamond inheritance problem**. It **serializes the diamond shape into a linear line**. The order of inheritance is **still conserved**, but **sibling parents are placed next to each other, based on who was called first.**
 
-- ```
-    	Granny															Granny
-    /				\																|
-    /				\															Mommy
-    |					|			Linearized							|
-  Mommy			Daddy -------------->					Daddy
-  	\					/															|
-  		\				/														Child
-  			Child
-  ```
+    ![Untitled Diagram.drawio](c3.png)
 
 - Imagine how the line would form. Initially no lines are there. Lines are finalized **only when all parent constructors are called and child constructor is invoked**.
 
