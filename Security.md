@@ -1,3 +1,9 @@
+---
+title : Solidity Security
+---
+
+
+
 [**← Back to Homepage**](https://0xpranay.github.io/solidity-notes/)
 
 **Security** : This doc helps readers know about security vulnerabilities in smart contracts and also developer practices in the end. This doc **by no means covers all the vulnerabilities** as smart contract security is an evergoing learning path.

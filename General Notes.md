@@ -1,5 +1,5 @@
 ---
-title : General Notes
+title : Solidity General Notes
 ---
 
 [**← Back to Homepage**](https://0xpranay.github.io/solidity-notes/)

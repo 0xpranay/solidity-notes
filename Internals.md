@@ -1,3 +1,7 @@
+---
+title : Solidity Internals
+---
+
 [**← Back to Homepage**](https://0xpranay.github.io/solidity-notes/)
 
 **Internals :** This doc explains the internals of data locations. While **General Notes** mentions some differences, this doc delves into more explanation.
