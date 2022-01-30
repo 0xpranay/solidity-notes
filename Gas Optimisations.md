@@ -99,7 +99,7 @@ addr.call(abi.encodeWithSelector(IERC20.transfer.selector, 0xSomeAddress, 123));
 ## **bytes vs byte1[]**:
 
 - Again, check **internals** section for a detailed explanation.
-- TL;DR ? `bytes` has packing, `byte1[]` lacks packing in storage.
+- TL;DR ? `bytes` has packing, `byte1[]` lacks packing.
 
 ## **Limit external calls:**
 
