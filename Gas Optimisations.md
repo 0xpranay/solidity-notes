@@ -96,10 +96,10 @@ addr.call(abi.encodeWithSelector(IERC20.transfer.selector, 0xSomeAddress, 123));
 - Because EVM store is a key value mapped store, mappings are cheaper for EVM than arrays
 - Check **internals** section for more details.
 
-## **Bytes32 vs byte1[]** : 
+## **bytes vs byte1[]**:
 
 - Again, check **internals** section for a detailed explanation.
-- TL;DR ? `bytes32` has packing, `byte1[]` lacks packing in storage.
+- TL;DR ? `bytes` has packing, `byte1[]` lacks packing in storage.
 
 ## **Limit external calls:**
 
