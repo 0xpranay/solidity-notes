@@ -79,6 +79,17 @@ addr.call(abi.encodeWithSelector(IERC20.transfer.selector, 0xSomeAddress, 123));
 - Imagine you have to check 2 conditions one after other to pass the check. You should check the lower cost/less complex check first instead of high cost check.
 - Let `g(x)` be low cost and `h(x)` be high cost. Doing this saves some gas,
   - `g(x) && h(x)` as if `g(x)` fails, `h(x)` is never executed.
+- Note that `require()` **does not** short-circuit, which matters if your message is not a constant and is calculated at runtime instead.
+    This:
+    ```solidity
+    if (condition)
+        revert(getMessage());
+    ```
+    is more efficient than:
+    ```solidity
+    require(condition, getMessage());
+    ```
+    because it will not run `getMessage()` when the `condition` is false.
 
 ## **Mappings are cheaper than arrays**:
 
