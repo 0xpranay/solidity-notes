@@ -14,7 +14,7 @@
 ### Where
 
 - I prepared these docs while learning too. Almost 80% of the information here is from the docs, but attached together with extra bit of information that makes sense and makes you remember the concept.
-- Rest 20% is from answering/asking and countless hours of browsing through Ethereum StackExchange.
+- Rest is from answering/asking and countless hours of browsing through Ethereum StackExchange.
 
 ### Who
 
