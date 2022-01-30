@@ -104,6 +104,8 @@ addr.call(abi.encodeWithSelector(IERC20.transfer.selector, 0xSomeAddress, 123));
 ## **Limit external calls:**
 
 - This might be or not be possible. But try to decrease them as much as possible.
+    - Note that the alternative - internal calls - increases your bytecode size because the whole function gets compiled into your own contract.
+        If you care more about deployment cost or are hitting the contract size limit, an external call might be the right choice after all.
 - Every `external` call costs more gas than a simple internal call.
 
 ## **Make your contract upgradeable** : 
