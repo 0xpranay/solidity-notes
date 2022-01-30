@@ -18,21 +18,38 @@ Recall that structs and arrays start at a diff slot. So inside a struct declarin
 
 But, `uint128, uint256, uint128` is worst due to **3 slots** as storage make a **new slot** if a variable can't fit.
 
-## Creating a function for encoding function selector : 
+## Avoid calculating function selectors at runtime:
 
-Instead of `addr.call(abi.encodeWithSignature("transfer(address,uint256)", 0xSomeAddress, 123))`, we can prevent computing the signature everytime and let a function do it like this,
+The compiler can precalculate a function selector at compilation time when the function signature is known.
+Try to rely on this behavior whenever possible.
 
+For example the following code prevents this optimization:
 ```solidity
-function getSelector(string calldata _func) external pure returns (bytes4) {
-        return bytes4(keccak256(bytes(_func)));
-    }
+function getSelector(bytes memory _func) returns (bytes4) {
+    return bytes4(keccak256(_func));
+}
+
+function doStuff() {
+    addr.call(abi.encodeWithSelector(getSelector("transfer(address,uint256)"), 0xSomeAddress, 123));
+}
+```
+`getSelector()` will always run `keccak256()` on its argument because it cannot assume that it's always a constant.
+With `abi.encodeWithSignature()`, on the other hand, the compiler is smart enough to generate more efficient code when you use a string literal:
+
+```selector
+addr.call(abi.encodeWithSignature("transfer(address,uint256)", 0xSomeAddress, 123));
 ```
 
-And use `addr.call(getSelector(funcName), 0xSomeAddress, 123))`. This saves a tiny amount of gas.
+If you inspect the resulting assembly, you'll notice that the value `0x6628616464726573732c75696e7429` (i.e. `"transfer(address,uint256)"`) is nowhere to be found and the result of the `keccak256()` call (`0xa9059cbb`) is hard-coded in it instead.
 
+**Note**: Calculating selectors by hand is very error-prone and should be avoided.
+A very common mistake, for example, is to insert a space after the comma, which will result in a completely different selector.
+The example above does such a calculation on purpose, to illustrate a point, but in practice the language provides a more type-safe way to achieve the same result.
+The `.selector` member:
 
-
-- **Constants** don't occupy any storage. They're always **replaced when needed in the code like a macro**. 
+```selector
+addr.call(abi.encodeWithSelector(IERC20.transfer.selector, 0xSomeAddress, 123));
+```
 
 ## **Use Events for storing something user related/temporary** : 
 
