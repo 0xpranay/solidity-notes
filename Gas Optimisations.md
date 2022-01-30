@@ -56,10 +56,11 @@ addr.call(abi.encodeWithSelector(IERC20.transfer.selector, 0xSomeAddress, 123));
 - Use Events to store per user actions or UI related data. Using storage is costly and creates unnecessary getters and overhead
 - With events, something like TheGraph can be used to query them in an even powerful way than just storage view queries.
 
-## **Use External functions when possible** : 
+## **Use External functions when using old compiler versions**:
 
-- External function's parameters can be declared `calldata` and will be fetched from `calldata` itself when referenced.
-- For other types like `internal` and `public`, the parameters will be copied to memory by default which increases gas cost.
+- External function's parameters can be declared `calldata`, which means that they will not be decoded into memory unless absolutely necessary.
+    Decoding involves copying the whole value and increases gas cost.
+- For other types like `internal` and `public`, it was not possible to use `calldata` parameters before Solidity 0.6.9, so when using older compiler versions you have to make your function as `external` to be able to take advantage of this optimization.
 
 ## **Revert strings** :
 
