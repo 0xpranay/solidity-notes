@@ -61,10 +61,13 @@ addr.call(abi.encodeWithSelector(IERC20.transfer.selector, 0xSomeAddress, 123));
 - External function's parameters can be declared `calldata` and will be fetched from `calldata` itself when referenced.
 - For other types like `internal` and `public`, the parameters will be copied to memory by default which increases gas cost.
 
-## **Require strings** :
+## **Revert strings** :
 
-- Long require strings too increase gas cost. Use smaller strings.
-- If you need large strings for some huge application, you can use some error codes as require strings and then maybe decode them on UI side, bypassing long string gas cost.
+- Long strings in `require()` or `revert()` too increase gas cost. Use [custom errors](https://docs.soliditylang.org/en/latest/contracts.html#errors-and-the-revert-statement) instead.
+- If you need large strings for some huge application, you can construct them on the UI side from the error type. You can also include additional parameters in the error, allowing your UI to insert them into the final message.
+- For maximum savings you can set `debug.revertStrings` setting to `"strip"`, which will strip **all** revert strings from your code.
+    Note, however, that this will make the failures of your contract very cryptic to users so it's not recommended.
+    In fact, it's a good idea to have this set to `"debug"` in non-production builds of your contract because the default value strips messages from reverts generated automatically by the compiler making them hard to debug.
 
 ## Don't repeat yourself : 
 
