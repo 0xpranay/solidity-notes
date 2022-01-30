@@ -8,7 +8,7 @@ title : Solidity Gas Optimisations
 
 ## Read/Write costs : 
 
-Becuase solidity operates in 32 bytes at once, read/write to an element less than 32 bytes **costs more** as **EVM needs to do extra OPs retrieve and pad extra bytes to the element in that 32 byte slot**.
+Because solidity operates in 32 bytes at once, read/write to an element less than 32 bytes **costs more** as **EVM needs to do extra OPs retrieve and pad extra bytes to the element in that 32 byte slot**.
 
 So, operations with **32 bytes** costs less as no extra operations are involved. So **it is beneficial** to use reduced size elements like `uint8` **if you read them all at once, like a whole 32 byte slots at once as there isn't any padding operation involved **. So reading 4 `uint64` which are declared contiguosly is better **as there aren't any discard operations involved.** 
 
@@ -60,9 +60,9 @@ And use `addr.call(getSelector(funcName), 0xSomeAddress, 123))`. This saves a ti
 - Let `g(x)` be low cost and `h(x)` be high cost. Doing this saves some gas,
   - `g(x) && h(x)` as if `g(x)` fails, `h(x)` is never executed.
 
-## **Mappings are cheper than arrays** : 
+## **Mappings are cheaper than arrays**:
 
-- Becuase EVM store is a key value mapped store, mappings are cheaper for EVM than arrays
+- Because EVM store is a key value mapped store, mappings are cheaper for EVM than arrays
 - Check **internals** section for more details.
 
 ## **Bytes32 vs byte1[]** : 
