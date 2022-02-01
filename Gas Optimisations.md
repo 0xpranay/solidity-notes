@@ -18,12 +18,10 @@ Recall that structs and arrays start at a diff slot. So inside a struct declarin
 
 But, `uint128, uint256, uint128` is worst due to **3 slots** as storage make a **new slot** if a variable can't fit.
 
-## Avoid calculating function selectors at runtime:
+## Calculating function selectors at runtime:
 
-The compiler can precalculate a function selector at compilation time when the function signature is known.
-Try to rely on this behavior whenever possible.
+The compiler can precalculate a function selector at compilation time when the function signature is known. So if your function signature is known beforehand then do it in the encoding statement itself. But if in some rare cases you have multiple places in code where you are computing selectors dynamically, then use a function for that to save some gas.
 
-For example the following code prevents this optimization:
 ```solidity
 function getSelector(bytes memory _func) returns (bytes4) {
     return bytes4(keccak256(_func));
@@ -34,13 +32,11 @@ function doStuff() {
 }
 ```
 `getSelector()` will always run `keccak256()` on its argument because it cannot assume that it's always a constant.
-With `abi.encodeWithSignature()`, on the other hand, the compiler is smart enough to generate more efficient code when you use a string literal:
+With `abi.encodeWithSignature()`, on the other hand in the constant selector case, the compiler is smart enough to generate more efficient code when you use a string literal:
 
 ```selector
 addr.call(abi.encodeWithSignature("transfer(address,uint256)", 0xSomeAddress, 123));
 ```
-
-If you inspect the resulting assembly, you'll notice that the value `0x6628616464726573732c75696e7429` (i.e. `"transfer(address,uint256)"`) is nowhere to be found and the result of the `keccak256()` call (`0xa9059cbb`) is hard-coded in it instead.
 
 **Note**: Calculating selectors by hand is very error-prone and should be avoided.
 A very common mistake, for example, is to insert a space after the comma, which will result in a completely different selector.
@@ -100,7 +96,7 @@ addr.call(abi.encodeWithSelector(IERC20.transfer.selector, 0xSomeAddress, 123));
 ## **bytes vs byte1[]**:
 
 - Again, check **internals** section for a detailed explanation.
-- TL;DR ? `bytes` has packing, `byte1[]` lacks packing.
+- TL;DR ? `bytes` has packing, `byte1[]` lacks packing in the location `memory`. In the context of `storage`, both have packing.
 
 ## **Limit external calls:**
 
