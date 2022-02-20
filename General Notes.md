@@ -565,7 +565,7 @@ I am Kiddo and I call Daddy
 
 - Then based on `Child`'s `is` directive, `Daddy` is called. `Daddy` tries to call `Granny` but remember that **virtual inheritance prevents this**. Already an object is **existing in the inheritance graph, so no new Grannys**.
 
-- Now something interesting happens. **Because recent contructor happened from `Mommy`, the parent of `Daddy` becomes `Mommy`**.
+- Now something interesting happens. **Because recent constructor was called from `Mommy`, the parent of `Daddy` becomes `Mommy`**.
 
 - Finally, `child` constructor finishes up and `Daddy` becomes the parent as it is the recently called one.
 
