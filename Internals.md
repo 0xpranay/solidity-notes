@@ -60,7 +60,15 @@ Hence, **you can't delete a mapping** as solidity does not implicitly store info
 - So we should never write to the zero slot. But don't worry, on a high level, the free **memory pointer points to `0x80` intitally** so unless we do something weird in assembly, we're cool.
 - New objects are placed at **memory pointed by free memory pointer**. Allocated memory is **Never Freed**. This might change in future solidity releases.
 - **Elements in memory arrays always occupy multiples of 32 bytes**. Highly Inefficient. So, while `uint8[4]` occupies **1 Byte in storage**, it occupies **128 Bytes here cuz each element occupies 32 bytes regardless of how small it is**. This applies to even **structs too**. So, **in both memory and calldata, packing is absent**.
-
+- The recent compiler versions from `0.8.13` use memory to prevent **stack too deep** errors by copying some stack variables onto memory and some optimisations. 
+- This extra feature requires that the code block be **memory safe**. By default solidity code is considered memory safe, but the `inline assembly` blocks need to be declared explictly using `assembly ("memory-safe") { ... }`. The compiler does **NOT** check that it actually is memory safe but turns on the above functionality believing it is actually memory safe on the programmer's promise. Declaring it as memory safe but not actually being memory safe leads to **undefined behaviours** . 
+  - **Q. What is a memory safe assembly block? **TL;DR, blocks that respect solidity memory layout.
+  - It's memory safe when the following memory blocks are accessed : 
+    1. Memory allocated by yourself respecting solidity layout i.e **reading from free memory pointer** `0x40` and **updating (incrementing) it correctly after any allocations.**
+    2. Memory **allocated by Solidity**, e.g. memory within the bounds of a memory array you reference.
+    3. **The scratch space** between memory offset 0 and 64 mentioned above.
+    4. Temporary memory that is located *after* the value of the free memory pointer at the beginning of the assembly block, i.e. memory that is “allocated” at the free memory pointer without updating the free memory pointer. 
+    5. The assmebly block that doesn't have any consecutive allocations. For example, if the assembly block is the last piece of code inside the function, it is safe by default as all memory is wiped after function call finishes. 
 
 
 ### ``bytes, string`` vs ``byte1[]``:
