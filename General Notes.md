@@ -304,6 +304,76 @@ function assigned()
 
 9. Internal function types can only be passed to internal functions since they are just an internal `JUMP`.  
 
+10. Functions can also be attached to types using the `using functionName for Type` syntax where `functionName` is a function at the file level. The `global` extension can also be used for user defined types where they are defined, to extend the effect globally i.e inherited or imported. Library functions can also be attached as `using {LibraryName.functionName} for someType`. 
+
+11. ```solidity
+    // File restrictednumber.sol
+    type RestrictedNumber is int256;
+    using {plusOne, minusOne} for RestrictedNumber global; // This extends the effect to places where RestrictedNumber is used
+    
+    function plusOne(RestrictedNumber x) pure returns (RestrictedNumber)
+    {
+        unchecked {
+            return RestrictedNumber.wrap(RestrictedNumber.unwrap(x) + 1);
+        }
+    }
+    
+    function minusOne(RestrictedNumber x) pure returns (RestrictedNumber)
+    {
+        unchecked {
+            return RestrictedNumber.wrap(RestrictedNumber.unwrap(x) - 1);
+        }
+    }
+    
+    /// This is a creation function that ensures that
+    /// values are small enough. The idea is that the function
+    /// RestrictedNumber.wrap should only be used in the file
+    /// that defines the type, so that we have control over
+    /// the invariants.
+    function createRestrictedNumber(int256 value) pure returns (RestrictedNumber)
+    {
+        // Ensure that the number is "small".
+        // Larger constants like 2**200 would also work.
+        require(value <= 100 && -value <= 100);
+        return RestrictedNumber.wrap(value); // Wrap creates the user defined type from underlying
+    }
+    ```
+
+12. ```solidity
+    // File owned.sol
+    import {RestrictedNumber} from "./restrictedNumber.sol";
+    
+    contract Owned {
+        RestrictedNumber public ownerCount;
+        mapping(address => bool) public isOwner;
+    
+        constructor() {
+            _addOwner(msg.sender);
+        }
+    
+        function addOwner(address owner) external {
+            require(isOwner[msg.sender]);
+            _addOwner(owner);
+        }
+    
+        function removeOwner(address owner) external {
+            require(isOwner[msg.sender]);
+            require(isOwner[owner]);
+            // Because of <global>, we do not have to add
+            //  <using for> in the contract to use the
+            // 	<minusOne> function.
+            ownerCount = ownerCount.minusOne();
+            isOwner[owner] = false;
+        }
+    
+        function _addOwner(address owner) internal {
+            require(!isOwner[owner]);
+            ownerCount = ownerCount.plusOne();
+            isOwner[owner] = true;
+        }
+    }
+    ```
+
 ### Visibility : 
 
 1. `Public` : Can be called internally(from inside current contract) and also externally(other contracts or EOAs)
