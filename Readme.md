@@ -9,7 +9,7 @@
   - **Internals** : This document deals with explaining the data locations and how they can affect any gas costs. Organisation of data is also explained.
   - **Security** : This document deals with a few security vulnerabilities involved when writing smart contracts. In the end, it also has a few points on developing smart contracts. 
   - **Gas Optimisations :** This document mentions some things a smart contract developer can do to save gas costs. Security and Gas Optimsations by no means cover all exisiting topics, but they cover a few that are important.
-- This resource is written for **Solidity v0.8.11**.
+- This resource is updated for **Solidity v0.8.12**.
 
 ### Where
 
@@ -75,4 +75,3 @@
   has waived all copyright and related or neighboring rights to
   <span property="dct:title">Solidity Notes</span>.
 </p>
-
