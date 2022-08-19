@@ -53,11 +53,12 @@ contract Enum {
 10. **Struct** is a user defined type. Similar to enums, **structs can also be imported**. Structs are similar to classes. To instantiate a new object, use the constructor. Bear in mind that all new objects are created in memory(as only place we can do this is inside a function) and **if the struct were to contain mapping**, solidity throws an error.
 11. Arguments to constructor **must follow parameter order** or specify `{key:value}` object if order isn't followed.
 12. **Array** is similar to other langs. `uint[] myArr`is the way to declare dynamic arrays. `uint[10] tenArray`is fixed array. Note that static array values are initialized to **zero** . Note that functions can also return arrays. `return staticOrDynamicArray`is the way. Note that if arrays grow too big, return takes more gas.
-12. `bytes.concat(...) returns (bytes memory)` can be used to `concat` variable number of `bytes` and also `bytesX` types into a single `bytes`.
-13. Note that **memory can have dynamic arrays via `new`** but **can't use resize methods like push and pop on memory arrays**.
-14. using `delete myArray[i]` **does not shrink the array**. `delete` just changes values to **default value**. 
-14. You can compare two dynamic length `bytes` or `string` by using `keccak256(abi.encodePacked(s1)) == keccak256(abi.encodePacked(s2))`
-14. **string** does not have `length` property to access it's length. So to make it usable in code that relies on `length`, cast it to `bytes` with `bytes(string)` and then use it.
+13. `bytes.concat(...) returns (bytes memory)` can be used to `concat` variable number of `bytes` and also `bytesX` types into a single `bytes`.
+14. Note that **memory can have dynamic arrays via `new`** but **can't use resize methods like push and pop on memory arrays**.
+15. using `delete myArray[i]` **does not shrink the array**. `delete` just changes values to **default value**. 
+16. You can compare two dynamic length `bytes` or `string` by using `keccak256(abi.encodePacked(s1)) == keccak256(abi.encodePacked(s2))`
+17. **string** does not have `length` property to access it's length. So to make it usable in code that relies on `length`, cast it to `bytes` with `bytes(string)` and then use it.
+18. **Functions pointers** are also a supported type. `function takeUint(uint) external` is also a valid type. It can be assigned and also equality checked with other function pointers. 
 
 #### Variable Scopes : 
 
@@ -196,8 +197,8 @@ uint8 e = uint8(bytes1(a)); // e will be 0x12
   5. That's X. And implicitly what's happening in `Line 2`  is, we are setting value of X to false which is zero.
 
   *So a wise use case for **storage pointers** is to get read only access if we aren't careful. Can also use for writing provided we know what we're doing with manipulating the state reference.*
-
-
+  
+  *Note : This behaviour is non existent in recent compiler versions. But still have to be careful when using uninitialised storage pointers*
 
 ### Calls : 
 
@@ -277,6 +278,31 @@ function assigned()
 ```
 
 6. `View` functions mean that they **only read. No state change**. `Pure` functions mean they **neither read nor write from state**. Note that the constraints apply only on state. You can still create memory objects and interact with the user's calldata in a normal way.
+
+7. Functions are also a valid `value type`. They can be equality checked as can be passed as parameters to other functions.
+
+   ```solidity
+   contract Oracle {
+       struct Request {
+           bytes data;
+           function(uint) external callback;
+       }
+       Request[] private requests;
+   
+       function storeRequest(bytes memory data, function(uint) external callback) public {
+           requests.push(Request(data, callback));
+       }
+       
+       function triggerRequest(uint index) external {
+       	bytes memory dataToCall = requests[index].data;
+       	requests[index].callback(dataToCall); // The function stored during storeRequest is called
+       }
+   }
+   ```
+
+8. External function types are stored as a **24 byte** value where the first 20 bytes are the **address to invoke the function on** and the next 4 bytes are the **function selector ** of the function. These are accesible on the type, i.e `callback.address` and `callback.selector` inside contracts.
+
+9. Internal function types can only be passed to internal functions since they are just an internal `JUMP`.  
 
 ### Visibility : 
 
@@ -853,12 +879,13 @@ assert(1 ether == 1e18);
 
 - Let `C` be a contract type, `I` be an interface type.
 
-  - | Code                              | Property                                                     |
-    | --------------------------------- | ------------------------------------------------------------ |
-    | `type(C).name`                    | Name of contract                                             |
-    | `type(C).creationCode`            | The compile time bytecode                                    |
-    | `type(C).runtimeCode`             | The bytecode after constructor ran. There are some caveats, check docs. |
-    | `type(interfaceType).interfaceId` | A `bytes4` interface type. Use to check if a contract supports interfaces like `IERC20` and so on.. |
+  - | Code                   | Property                                                     |
+    | ---------------------- | ------------------------------------------------------------ |
+    | `type(C).name`         | Name of contract                                             |
+    | `type(C).creationCode` | The compile time bytecode                                    |
+    | `type(C).runtimeCode`  | The bytecode after constructor ran. There are some caveats, check docs. |
+    | `type(I).interfaceId`  | A `bytes4` interface type. Use to check if a contract supports interfaces like `IERC20` and so on.. |
+    | `type(C).functionName` | The function pointer of a function inside contract C. Can be used as a type and also in external calls using `encodeCall` |
 
 
 
@@ -868,6 +895,7 @@ assert(1 ether == 1e18);
 - `abi.encode(...) returns (bytes memory)` encodes stuff using padding and hence no collisions when dynamic data is involved.
 - `abi.encodePacked(...) returns (bytes memory)` does packed encoding. Should **NOT be used when >2 dynamic arguments are involved due to hash collision, like** `A, AB` and `AA, B` give same encoding here due to no padding and hence their hashes **collide**.
 - `abi.encodeWithSelector(bytes4 selector, ...) returns (bytes memory)` same as `abi.encode` but prepends the `selector` . Useful when doing raw txns, selector is used to specify `function signature`.
+- `abi.encodeCall(functionPointer, ...) returns (bytes memory)` is same as above but a function pointer is passed. 
 
 
 
